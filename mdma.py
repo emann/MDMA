@@ -3,31 +3,31 @@ import binascii
 known_opcodes = {2: 'J', 3: 'JAL', 4: 'BEQ', 5: 'BNE'}
 while True:
     print('=======')
-    mc = input("Machine code: ").replace(' ', '')
-    if mc.startswith('0x'):
-        mc = mc[2:]
-    mc = bin(int(mc, 16))[2:].zfill(32)
-    print("Binary: ", mc)
-    if mc.startswith('000000'):
-        n = ['op', 'rs', 'rt', 'rd','shamt','func']
-        b = [mc[:6], mc[6:11], mc[11:16], mc[16:21], mc[21:26], mc[26:32]]
-        d = [int(bb, 2) for bb in b]
-    elif any((mc.startswith(c) for c in ['000010', '000011'])):  # J or JAL
-        n = ['op', 'target']
-        b = [mc[:6], mc[6:]]
-        d = [int(bb, 2) for bb in b]
-    elif any((mc.startswith(c) for c in ['000100', '000101'])):  # BEQ or BNE
-        n = ['op', 'src1', 'src2', 'offset']
-        b = [mc[:6], mc[6:11], mc[11:16], mc[16:]]
-        d = [int(bb, 2) for bb in b]
+    mc_hex = input("Machine code: ").replace(' ', '')
+    if mc_hex.startswith('0x'):
+        mc_hex = mc_hex[2:]
+    mc_binary = bin(int(mc_hex, 16))[2:].zfill(32)
+    print("Binary: ", mc_binary)
+    if mc_binary.startswith('000000'):  # Special Operation
+        fields = ['op', 'rs', 'rt', 'rd','shamt','func']
+        binary = [mc_binary[:6], mc_binary[6:11], mc_binary[11:16], mc_binary[16:21], mc_binary[21:26], mc_binary[26:32]]
+        decimal = [int(bb, 2) for bb in binary]
+    elif any((mc_binary.startswith(c) for c in ['000010', '000011'])):  # J or JAL
+        fields = ['op', 'target']
+        binary = [mc_binary[:6], mc_binary[6:]]
+        decimal = [int(bb, 2) for bb in binary]
+    elif any((mc_binary.startswith(c) for c in ['000100', '000101'])):  # BEQ or BNE
+        fields = ['op', 'src1', 'src2', 'offset']
+        binary = [mc_binary[:6], mc_binary[6:11], mc_binary[11:16], mc_binary[16:]]
+        decimal = [int(bb, 2) for bb in binary]
     else:
-        n = ['op', 'rs', 'rt', 'immediate']
-        b = [mc[:6], mc[6:11], mc[11:16], mc[16:]]
-        d = [int(bb, 2) for bb in b]
-    if d[0] in known_opcodes:
-        n[0] = f'{n[0]}: {known_opcodes[d[0]]}'
+        fields = ['op', 'rs', 'rt', 'immediate']
+        binary = [mc_binary[:6], mc_binary[6:11], mc_binary[11:16], mc_binary[16:]]
+        decimal = [int(bb, 2) for bb in binary]
+    if decimal[0] in known_opcodes:
+        fields[0] = f'{fields[0]}: {known_opcodes[decimal[0]]}'
     print('Section\tdecimal\tbinary')
-    for i in range(len(n)):
-        print(f'{n[i]}\t{d[i]}\t{b[i]}')
+    for i in range(len(fields)):
+        print(f'{fields[i]}\t{decimal[i]}\t{binary[i]}')
     print('=======')
     print()
