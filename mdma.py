@@ -1,6 +1,18 @@
 import binascii
+import json
 
-known_opcodes = {2: 'J', 3: 'JAL', 4: 'BEQ', 5: 'BNE'}
+def twos_comp(val):
+    bits = len(val)
+    val = int(val,2)
+    if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
+        val = val - (1 << bits)        # compute negative value
+    return val
+
+with open('func_and_opcodes.json', 'r') as yf:
+    codes = json.load(yf)
+    opcodes = codes['opcodes']
+    func_codes = codes['func_codes']
+
 while True:
     print('=======')
     mc_hex = input("Machine code: ").replace(' ', '')
@@ -16,16 +28,23 @@ while True:
         fields = ['op', 'target']
         binary = [mc_binary[:6], mc_binary[6:]]
         decimal = [int(bb, 2) for bb in binary]
+        decimal[-1] = twos_comp(binary[-1])
     elif any((mc_binary.startswith(c) for c in ['000100', '000101'])):  # BEQ or BNE
         fields = ['op', 'src1', 'src2', 'offset']
         binary = [mc_binary[:6], mc_binary[6:11], mc_binary[11:16], mc_binary[16:]]
         decimal = [int(bb, 2) for bb in binary]
+        decimal[-1] = twos_comp(binary[-1])
     else:
         fields = ['op', 'rs', 'rt', 'immediate']
         binary = [mc_binary[:6], mc_binary[6:11], mc_binary[11:16], mc_binary[16:]]
         decimal = [int(bb, 2) for bb in binary]
-    if decimal[0] in known_opcodes:
-        fields[0] = f'{fields[0]}: {known_opcodes[decimal[0]]}'
+        decimal[-1] = twos_comp(binary[-1])
+    if binary[0] == '000000':  # This is a special opcode with a func code
+        op = func_codes[binary[5]]
+    else:  # standard opcode
+        op = opcodes[binary[0]]
+    print('-----')
+    print("OPERATION:", op)
     print('Section\tdecimal\tbinary')
     for i in range(len(fields)):
         print(f'{fields[i]}\t{decimal[i]}\t{binary[i]}')
