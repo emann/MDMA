@@ -13,7 +13,11 @@ class OpFormat(NamedTuple):
     def from_binary_string(binary_string):
         op_digits = binary_string[:6]
         if op_digits in ['000000']:
-            return _r_format
+            func_digits = binary_string[26:]
+            if func_digits in ["000000", "000100", "000011", "000111", "000010", "000110"]:  # A shifting operation
+                return _s_format
+            else:
+                return _r_format
         elif op_digits in ['000010', '000011']:
             return _j_format
         else:  # Anything not specified is assumed to be an I format operation
@@ -29,6 +33,9 @@ _i_format = OpFormat(format="I",
 _j_format = OpFormat(format="J",
                      fields={'op': 6, 'target': 26},
                      syntax=["op", "target"])
+_s_format = OpFormat(format="R",  # SHIFT FORMAT
+                     fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6},
+                     syntax=["func", "rs", "rt", "shamt"])
 
 path = os.path.dirname(os.path.realpath(__file__))
 path = os.path.join(path, 'func_and_opcodes.json')
