@@ -1,6 +1,8 @@
+import os
 import json
 from enum import Enum
 from typing import NamedTuple, Dict, List
+
 
 class OpFormat(NamedTuple):
     format: str
@@ -18,7 +20,6 @@ class OpFormat(NamedTuple):
             return _i_format
         
 
-
 _r_format = OpFormat(format="R", 
                      fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6}, 
                      syntax=["func", "rd", "rs", "rt"])
@@ -29,9 +30,11 @@ _j_format = OpFormat(format="J",
                      fields={'op': 6, 'target': 26},
                      syntax=["op", "target"])
 
-
-with open('func_and_opcodes.json', 'r') as yf:
+path = os.path.dirname(os.path.realpath(__file__))
+path = os.path.join(path, 'func_and_opcodes.json')
+with open(path, 'r') as yf:
     codes = json.load(yf)
+
 
 class Registers(Enum):
     zero = 0

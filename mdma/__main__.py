@@ -1,5 +1,6 @@
-from machine_code import MachineCode
+from .machine_code import MachineCode
 from prettytable import PrettyTable
+
 
 def _loop_func():
     print('=======')
@@ -15,6 +16,7 @@ def _loop_func():
     print("DECODED:", str(mc))
     print('=======\n')
     return True
+
 
 while _loop_func():
     pass

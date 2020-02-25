@@ -1,5 +1,6 @@
 from typing import List
-from op_formatting import OpFormat, codes, Registers
+from .op_formatting import OpFormat, codes, Registers
+
 
 class DataSegment:
     def __init__(self, name: str, num_bits: str, bin_str: str):
@@ -28,6 +29,7 @@ class DataSegment:
             return self._twos_comp(self.bin_str)
         else:
             return int(self.bin_str, 2)
+
     def parse_human_readable(self):
         if self.name in ['op', 'func']:
             return codes[self.name][self.bin_str]
