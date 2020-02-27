@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import json
 from enum import Enum
@@ -5,12 +6,23 @@ from typing import NamedTuple, Dict, List
 
 
 class OpFormat(NamedTuple):
+    """A representation of an operation's formatting, including format (one of R, I, or J), data segment names/sizes,
+        and the order the fields are in the human-readable/human entered instruction"""
     format: str
     fields: Dict[str, int]
     syntax: List[str]
 
     @staticmethod
-    def from_binary_string(binary_string):
+    def from_binary_string(binary_string: str) -> OpFormat:
+        """Parses the operation format of a 32-bit binary string based off of the 6 operation digits
+            (and/or the 6 function digits) in a 32-bit binary machine code string.
+
+            Args:
+                binary_string (str): the binary string to be parsed.
+            Returns:
+                The (pre-defined) OpFormat
+
+            """
         op_digits = binary_string[:6]
         if op_digits in ['000000']:
             func_digits = binary_string[26:]
@@ -22,18 +34,25 @@ class OpFormat(NamedTuple):
             return _j_format
         else:  # Anything not specified is assumed to be an I format operation
             return _i_format
-        
 
+
+# Represents R format operations
 _r_format = OpFormat(format="R", 
                      fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6}, 
                      syntax=["func", "rd", "rs", "rt"])
+
+# Represents I format operations
 _i_format = OpFormat(format="I",
                      fields={'op': 6, 'rs': 5, 'rt': 5, 'immediate': 16},
                      syntax=["op", "rt", "rs", "immediate"])
+
+# Represents J format operations
 _j_format = OpFormat(format="J",
                      fields={'op': 6, 'target': 26},
                      syntax=["op", "target"])
-_s_format = OpFormat(format="R",  # SHIFT FORMAT
+
+# Represent shift operations - similar to R format, but syntax is slightly different
+_s_format = OpFormat(format="R",
                      fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6},
                      syntax=["func", "rs", "rt", "shamt"])
 
@@ -44,6 +63,7 @@ with open(path, 'r') as yf:
 
 
 class Registers(Enum):
+    """An enum representing the different register names/numbers in MIPS"""
     zero = 0
     at = 1
     v0 = 2

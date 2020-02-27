@@ -3,7 +3,21 @@ from .op_formatting import OpFormat, codes, Registers
 
 
 class DataSegment:
-    def __init__(self, name: str, num_bits: str, bin_str: str):
+    """An object representation of a segment of data in a machine code string
+
+        The decimal value and human readable string are automatically generated on instantiation.
+        len(DataSegment) returns the number of bits in the data segment, and str(Datasegment) returns a human readable
+        representation whether it is an opcode, register number, or decimal immediate.
+
+        Attributes:
+            name (str): The name of the data segment (e.g. "op", "rs")
+            bin_str (str): A string of the data segment's bits.
+            num_bits (int): The number of bits in the data segment
+            decimal (int): The decimal representation of the binary string. Converted from two's complement when needed
+            human_readable (str): A human readable representation of the data
+
+        """
+
     def __init__(self, name: str, bin_str: str):
         self.name = name
         self.bin_str = bin_str
@@ -17,21 +31,38 @@ class DataSegment:
     def __str__(self):
         return self.human_readable
 
-    @staticmethod
-    def _twos_comp(val):
-        bits = len(val)
-        val = int(val,2)
-        if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
-            val = val - (1 << bits)        # compute negative value
-        return val
+    def _twos_comp(self) -> int:
+        """Converts the data segment's binary string from two's complement into its decimal value.
+
+            Returns:
+                The (converted) decimal representation of the input string
+
+            """
+        bits = len(self.bin_str)
+        bin_str = int(self.bin_str, 2)
+        if (bin_str & (1 << (bits - 1))) != 0:  # if sign bit is set
+            bin_str = bin_str - (1 << bits)         # compute negative value
+        return bin_str
     
-    def _parse_decimal(self):
+    def _parse_decimal(self) -> int:
+        """Parses the data segment's decimal value, determining if it needs to be converted from two's complement form.
+
+            Returns:
+                The decimal value of this data segment
+
+            """
         if self.name in ['offset', 'immediate']:
-            return self._twos_comp(self.bin_str)
+            return self._twos_comp()
         else:
             return int(self.bin_str, 2)
 
-    def _parse_human_readable(self):
+    def _parse_human_readable(self) -> str:
+        """Parses the data into its human readable form.
+
+            Returns:
+                The human-readable representation of the data.
+
+            """
         if self.name in ['op', 'func']:
             return codes[self.name][self.bin_str]
         elif self.name in ['rs', 'rt', 'rd', 'src1', 'src2']:
@@ -41,12 +72,26 @@ class DataSegment:
 
 
 class MachineCode:
+    """An object representation of decoded 32-bit machine code.
+
+        The decimal value and human readable string are automatically generated on instantiation.
+        len(DataSegment) returns the number of bits in the data segment, and str(Datasegment) returns a human readable
+        representation whether it is an opcode, register number, or decimal immediate.
+
+        Attributes:
+            hex_str (str): The input machine code (32-bit hex string) to be decoded. 0x is automatically added and spaces are removed, if necessary.
+            bin_str (str): A string containing the binary representation of the machine code.
+            op_format (OpFormat): A named tuple representing the operation's formatting
+            data_segments (List[DataSegment]): A list of the machine code's data segments, in their order in the binary.
+            ordered_data_segments (List[DataSegment]): A list of the meaningful data segments in the order they are displayed in a human-readable string
+
+        """
+
     def __init__(self, hex_str):
         self.hex_str = hex_str.replace(' ', '')
         if not self.hex_str.startswith('0x'):
             self.hex_str = '0x' + self.hex_str
         self.bin_str = bin(int(self.hex_str, 16))[2:].zfill(32)
-        self.operation: str = None
         self.op_format: OpFormat = None
         self.data_segments: List[DataSegment] = []
         self.ordered_data_segments: List[DataSegment] = []
@@ -55,10 +100,8 @@ class MachineCode:
     def __str__(self):
         return ' '.join([str(d) for d in self.ordered_data_segments])
 
-    def __getattr__(self, attr):
-        pass
-
-    def decode(self):
+    def decode(self) -> None:
+        """Decodes the machine code"""
         self.op_format = OpFormat.from_binary_string(self.bin_str)
         start = 0
         for section_name, bits in self.op_format.fields.items():
