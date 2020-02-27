@@ -4,11 +4,12 @@ from .op_formatting import OpFormat, codes, Registers
 
 class DataSegment:
     def __init__(self, name: str, num_bits: str, bin_str: str):
+    def __init__(self, name: str, bin_str: str):
         self.name = name
-        self.num_bits = num_bits
         self.bin_str = bin_str
-        self.decimal = self.parse_decimal()
-        self.human_readable = self.parse_human_readable()
+        self.num_bits = len(bin_str)
+        self.decimal = self._parse_decimal()
+        self.human_readable = self._parse_human_readable()
 
     def __len__(self):
         return self.num_bits
@@ -24,13 +25,13 @@ class DataSegment:
             val = val - (1 << bits)        # compute negative value
         return val
     
-    def parse_decimal(self):
+    def _parse_decimal(self):
         if self.name in ['offset', 'immediate']:
             return self._twos_comp(self.bin_str)
         else:
             return int(self.bin_str, 2)
 
-    def parse_human_readable(self):
+    def _parse_human_readable(self):
         if self.name in ['op', 'func']:
             return codes[self.name][self.bin_str]
         elif self.name in ['rs', 'rt', 'rd', 'src1', 'src2']:
@@ -59,11 +60,11 @@ class MachineCode:
 
     def decode(self):
         self.op_format = OpFormat.from_binary_string(self.bin_str)
-        start=0
+        start = 0
         for section_name, bits in self.op_format.fields.items():
             end = start + bits
             bin_str = self.bin_str[start:end]
-            self.data_segments.append(DataSegment(section_name, bits, bin_str))
+            self.data_segments.append(DataSegment(section_name, bin_str))
             start = end
         critical_segments = [d for d in self.data_segments if d.name in self.op_format.syntax]
         self.ordered_data_segments = list(sorted(critical_segments, key=lambda d: self.op_format.syntax.index(d.name)))
