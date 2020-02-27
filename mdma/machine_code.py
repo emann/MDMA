@@ -41,7 +41,7 @@ class DataSegment:
 
 class MachineCode:
     def __init__(self, hex_str):
-        self.hex_str = hex_str
+        self.hex_str = hex_str.replace(' ', '')
         if not self.hex_str.startswith('0x'):
             self.hex_str = '0x' + self.hex_str
         self.bin_str = bin(int(self.hex_str, 16))[2:].zfill(32)
