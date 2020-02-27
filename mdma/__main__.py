@@ -26,7 +26,7 @@ def interactive_loop(operation=None, verbose=False):
             break
         if not operation:
             if not input_str.startswith(('encode', 'decode')):
-                print()
+                print('INVALID OPERATION. Format: {encode, decode} input (e.g. decode 0x00000000)')
             operation = input_str[:6]
             input_str = input_str[7:]
         if operation == 'decode':
@@ -34,7 +34,7 @@ def interactive_loop(operation=None, verbose=False):
         elif operation == 'encode':
             print('Encoding MIPS instructions is not supported yet.')
         else:
-            print()
+            print('INVALID OPERATION. Format: {encode, decode} input (e.g. decode 0x00000000)')
 
 
 parser = ArgumentParser(description='Decode machine code or Encode MIPS Assembly Language')
