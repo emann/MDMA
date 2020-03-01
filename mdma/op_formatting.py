@@ -131,3 +131,9 @@ class Registers(Enum):
 
     def __str__(self):
         return '$' + self.name
+
+    @staticmethod
+    def register_num(register_name):
+        if register_name.startswith('$'):
+            register_name = register_name[1:]
+        return Registers[register_name].value
