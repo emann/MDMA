@@ -6,9 +6,7 @@ from .data_segment import DataSegment
 class MachineCode:
     """An object representation of decoded 32-bit machine code.
 
-        The decimal value and human readable string are automatically generated on instantiation.
-        len(DataSegment) returns the number of bits in the data segment, and str(Datasegment) returns a human readable
-        representation whether it is an opcode, register number, or decimal immediate.
+        The hex string is automatically decoded on instantiation
 
         Attributes:
             hex_str (str): The input machine code (32-bit hex string) to be decoded. 0x is automatically added and spaces are removed, if necessary.
