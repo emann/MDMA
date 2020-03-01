@@ -13,9 +13,8 @@ class OpFormat(NamedTuple):
     syntax: List[str]
 
     @staticmethod
-    def from_binary_string(binary_string: str) -> OpFormat:
-        """Parses the operation format of a 32-bit binary string based off of the 6 operation digits
-            (and/or the 6 function digits) in a 32-bit binary machine code string.
+    def from_32bit_binary_string(binary_string: str) -> OpFormat:
+        """Parses the 'op' bits and 'func' bits of a 32-bit binary string and uses them to parse the operation format.
 
             Args:
                 binary_string (str): the binary string to be parsed.
@@ -23,14 +22,49 @@ class OpFormat(NamedTuple):
                 The (pre-defined) OpFormat
 
             """
-        op_digits = binary_string[:6]
-        if op_digits in ['000000']:
-            func_digits = binary_string[26:]
-            if func_digits in ["000000", "000100", "000011", "000111", "000010", "000110"]:  # A shifting operation
+        op_bits = binary_string[:6]
+        func_bits = binary_string[26:]
+        return OpFormat.from_op_and_func(op_bits, func_bits)
+
+    @staticmethod
+    def from_instruction_str(instr_str: str) -> OpFormat:
+        """Determines the values of the 'op' and 'func' bits of the given instruction and uses them to
+            parse the operation format.
+
+                Args:
+                    instr_str (str): the human-readable instruction string to be parsed
+                Returns:
+                    The (pre-defined) OpFormat
+
+                """
+        if instr_str in codes['op'].values():
+            op_bits = next((bin_str for bin_str, op_name in codes['op'].items() if op_name == instr_str), None)
+            func_bits = None
+        else:  # This is a special operation with a func code
+            op_bits = '000000'
+            func_bits = next((bin_str for bin_str, func_name in codes['func'].items() if func_name == instr_str), None)
+        return OpFormat.from_op_and_func(op_bits=op_bits, func_bits=func_bits)
+
+    @staticmethod
+    def from_op_and_func(op_bits: str, func_bits: str = None) -> OpFormat:
+        """Parses the operation format of a 32-bit binary string based off of the 6 operation digits
+                (and/or the 6 function digits) in a 32-bit binary machine code string.
+
+                Args:
+                    op_bits (str): the 6 bits defining the instruction's operation
+                    func_bits (:obj:`str`, optional): the 6 bits defining the instruction's function, if needed
+                Returns:
+                    The (pre-defined) OpFormat
+
+                """
+        if op_bits in ['000000']:
+            if not func_bits:
+                raise Exception
+            if func_bits in ["000000", "000100", "000011", "000111", "000010", "000110"]:  # A shifting operation
                 return _s_format
             else:
                 return _r_format
-        elif op_digits in ['000010', '000011']:
+        elif op_bits in ['000010', '000011']:
             return _j_format
         else:  # Anything not specified is assumed to be an I format operation
             return _i_format
