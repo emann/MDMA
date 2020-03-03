@@ -55,7 +55,7 @@ class DataSegment:
         return bin_str
 
     def _twos_comp_from_int(self, val) -> str:
-        if self.num_bits < math.ceil(math.log(abs(val), 2)):
+        if val != 0 and self.num_bits < math.ceil(math.log(abs(val), 2)):
             raise Exception
         if val < 0:
             val += (1 << self.num_bits)
