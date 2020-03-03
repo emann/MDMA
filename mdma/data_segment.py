@@ -89,7 +89,7 @@ class DataSegment:
             return str(self.decimal)
 
     def _parse_bin_str(self) -> str:
-        """tjis parses the decomal, then that is used for bin str bc op and func are just ez bin(num)"""
+        """Parses the binary string representation of a human-readable instruction string"""
         if self.name in ['op', 'func']:
             bin_str = next((bin_str for bin_str, op_name in codes[self.name].items() if op_name == self.instr_str), None)
             if bin_str is None:

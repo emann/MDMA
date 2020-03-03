@@ -51,10 +51,10 @@ class MIPSInstruction:
         """Decodes the machine code"""
         self.op_format = OpFormat.from_32bit_binary_string(self.bin_str)
         start = 0
-        for section_name, bits in self.op_format.fields.items():
+        for segment_name, bits in self.op_format.fields.items():
             end = start + bits
             bin_str = self.bin_str[start:end]
-            self.data_segments.append(DataSegment(section_name, bin_str))
+            self.data_segments.append(DataSegment(segment_name, bin_str))
             start = end
         critical_segments = [d for d in self.data_segments if d.name in self.op_format.syntax]
         self.ordered_data_segments = list(sorted(critical_segments, key=lambda d: self.op_format.syntax.index(d.name)))
@@ -83,12 +83,3 @@ class MIPSInstruction:
             self.data_segments.append(DataSegment(name=segment_name, bin_str=segment_bits))
             self.bin_str += segment_bits
         self.hex_str = hex(int(self.bin_str, 2))
-
-
-if __name__ == '__main__':
-    m1 = MIPSInstruction(instruction_str='addi $t0 $t0 1')
-    print(m1)
-    print(m1.hex_str)
-    print(hex(m1))
-    m2 = MIPSInstruction(hex_str=m1.hex_str)
-    print(m2)
