@@ -100,7 +100,7 @@ class DataSegment:
             if bin_str is None:
                 raise Exception
             return bin_str
-        elif self.instr_str in [str(r) for r in Registers]:
-            return bin(Registers.register_num(self.human_readable))[2:].zfill(5)
+        elif self.instr_str.startswith('$'):
+            return bin(Registers.register_num(self.instr_str))[2:].zfill(5)
         else:
             return self._twos_comp_from_int(int(self.instr_str))

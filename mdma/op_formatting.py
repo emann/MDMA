@@ -136,4 +136,7 @@ class Registers(Enum):
     def register_num(register_name):
         if register_name.startswith('$'):
             register_name = register_name[1:]
-        return Registers[register_name].value
+        if register_name.isdigit():  # Register name with number e.g. $4 which is a0
+            return Registers(int(register_name)).value
+        else:
+            return Registers[register_name].value
