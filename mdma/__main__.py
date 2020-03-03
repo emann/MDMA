@@ -1,4 +1,4 @@
-from .machine_code import MachineCode
+from .mips_instruction import MIPSInstruction
 from prettytable import PrettyTable
 from argparse import ArgumentParser
 
@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 def decode(hex_str, verbose=False):
     print('=======')
     print('Machine Code:', hex_str)
-    mc = MachineCode(hex_str)
+    mc = MIPSInstruction(hex_str=hex_str)
     print("Binary:", mc.bin_str)
     if verbose:
         t = PrettyTable(['SECTION', 'DECIMAL', 'BINARY', 'DECODED'])
@@ -15,7 +15,20 @@ def decode(hex_str, verbose=False):
         print(t)
     print("DECODED:", str(mc))
     print('=======\n')
-    return True
+
+
+def encode(instr_str, verbose=False):
+    print('=======')
+    print('Instruction String:', instr_str)
+    mc = MIPSInstruction(instruction_str=instr_str)
+    if verbose:
+        t = PrettyTable(['SECTION', 'DECIMAL', 'BINARY', 'DECODED'])
+        for d in mc.data_segments:
+            t.add_row([d.name, d.decimal, d.bin_str, d.human_readable])
+        print(t)
+    print("Binary:", mc.bin_str)
+    print("ENCODED:", mc.hex_str)
+    print('=======\n')
 
 
 def interactive_loop(operation=None, verbose=False):
@@ -32,7 +45,7 @@ def interactive_loop(operation=None, verbose=False):
         if operation == 'decode':
             decode(input_str, verbose)
         elif operation == 'encode':
-            print('Encoding MIPS instructions is not supported yet.')
+            encode(input_str, verbose)
         else:
             print('INVALID OPERATION. Format: {encode, decode} input (e.g. decode 0x00000000)')
 
@@ -52,6 +65,6 @@ elif args.mode:
     if args.mode == 'decode':
         decode(args.input_str, args.verbose)
     if args.mode == 'encode':
-        print('Encoding is not supported yet.')
+        encode(args.input_str, args.verbose)
 else:
     parser.error('encode or decode must be specified if interactive mode (-i) is not specified.')
