@@ -31,12 +31,12 @@ class OpFormat(NamedTuple):
         """Determines the values of the 'op' and 'func' bits of the given instruction and uses them to
             parse the operation format.
 
-                Args:
-                    instr_str (str): the human-readable instruction string to be parsed
-                Returns:
-                    The (pre-defined) OpFormat
+            Args:
+                instr_str (str): the human-readable instruction string to be parsed
+            Returns:
+                The (pre-defined) OpFormat
 
-                """
+            """
         if instr_str in codes['op'].values():
             op_bits = next((bin_str for bin_str, op_name in codes['op'].items() if op_name == instr_str), None)
             func_bits = None
@@ -48,15 +48,15 @@ class OpFormat(NamedTuple):
     @staticmethod
     def from_op_and_func(op_bits: str, func_bits: str = None) -> OpFormat:
         """Parses the operation format of a 32-bit binary string based off of the 6 operation digits
-                (and/or the 6 function digits) in a 32-bit binary machine code string.
+            (and/or the 6 function digits) in a 32-bit binary machine code string.
 
-                Args:
-                    op_bits (str): the 6 bits defining the instruction's operation
-                    func_bits (:obj:`str`, optional): the 6 bits defining the instruction's function, if needed
-                Returns:
-                    The (pre-defined) OpFormat
+            Args:
+                op_bits (str): the 6 bits defining the instruction's operation
+                func_bits (:obj:`str`, optional): the 6 bits defining the instruction's function, if needed
+            Returns:
+                The (pre-defined) OpFormat
 
-                """
+            """
         if op_bits in ['000000']:
             if not func_bits:
                 raise Exception
