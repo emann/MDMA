@@ -82,4 +82,4 @@ class MIPSInstruction:
                 segment_bits = '0'*self.op_format.fields[segment_name]
             self.data_segments.append(DataSegment(name=segment_name, bin_str=segment_bits))
             self.bin_str += segment_bits
-        self.hex_str = hex(int(self.bin_str, 2))
+        self.hex_str = '0x' + hex(int(self.bin_str, 2))[2:].zfill(8)  # Padding to 8 hex digits
