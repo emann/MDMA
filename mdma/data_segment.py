@@ -55,12 +55,17 @@ class DataSegment:
         return bin_str
 
     def _twos_comp_from_int(self, val) -> str:
-        if self.num_bits > math.ceil(math.log(val, 2)):
+        if self.num_bits < math.ceil(math.log(abs(val), 2)):
             raise Exception
-        val
-        if self.decimal < 0:
+        if val < 0:
             val += (1 << self.num_bits)
-        return bin(val)[2:]
+            val = bin(val)[2:]
+            sign_extend = '1'*(self.num_bits - len(val))
+        else:
+            val = bin(val)[2:]
+            sign_extend = '0'*(self.num_bits - len(val))
+        val = sign_extend + val
+        return val
 
     def _parse_decimal(self) -> int:
         """Parses the data segment's decimal value, determining if it needs to be converted from two's complement form.
