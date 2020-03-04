@@ -6,7 +6,8 @@ from mdma.mips_instruction import MIPSInstruction
 instr_str_and_expected_hex = [("sll $zero $zero 0", '0x00000000'),
                               ("add $t0 $t1 $t2", "0x012a4020"),
                               ("addi $a0 $s3 -77", "0x2264ffb3"),
-                              ("addi $a0 $s3 77", "0x2264004d")]
+                              ("addi $a0 $s3 77", "0x2264004d"),
+                              ("j 0x00c40ab0", "0x083102ac")]
 
 
 @pytest.mark.parametrize("instr_str, expected_hex", instr_str_and_expected_hex)

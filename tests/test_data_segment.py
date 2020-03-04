@@ -7,14 +7,16 @@ instr_input_and_expected = [('op', 'addi', 6, '001000'),
                             ('immediate', 77, 16, '0000000001001101'),
                             ('offset', -77, 16, '1111111110110011'),
                             ('rd', '$v0', 5, '00010'),
-                            ('src1', '$2', 5, '00010')]
+                            ('src1', '$2', 5, '00010'),
+                            ('target', '0x00c40ab0', 26, '00001100010000001010101100')]
 
 bin_input_and_expected = [('op', '001000', 'addi'),
                           ('func', '100110', 'xor'),
                           ('immediate', '0000000001001101', '77'),
                           ('offset', '1111111110110011', '-77'),
                           ('rd', '00010', '$v0'),
-                          ('src1', '00010', '$v0')]
+                          ('src1', '00010', '$v0'),
+                          ('target', '00001100010000001010101100', '0x00c40ab0')]
 
 
 @pytest.mark.parametrize('segment_name, instr_str, num_bits, expected_bin_str', instr_input_and_expected)
