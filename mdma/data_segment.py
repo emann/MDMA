@@ -90,6 +90,8 @@ class DataSegment:
             return codes[self.name][self.bin_str]
         elif self.name in ['rs', 'rt', 'rd', 'src1', 'src2']:
             return str(Registers(self.decimal))
+        elif self.name == 'target':  # Upper four of program counter are assumed to be 0000
+            return '0x' + hex(int('0000' + self.bin_str + '00', 2))[2:].zfill(8)
         else:
             return str(self.decimal)
 
@@ -102,5 +104,8 @@ class DataSegment:
             return bin_str
         elif self.instr_str.startswith('$'):
             return bin(Registers.register_num(self.instr_str))[2:].zfill(5)
-        else:
+        elif self.name == 'target':
+            # First four come from PC (usually 0000) and last two are 00
+            return bin(int(self.instr_str, 16))[2:].zfill(32)[4:30]
+        else:  # Assumed to be an immediate/offset value
             return self._twos_comp_from_int(int(self.instr_str))
