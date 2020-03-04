@@ -22,7 +22,7 @@ def encode(instr_str, verbose=False):
     print('Instruction String:', instr_str)
     mc = MIPSInstruction(instruction_str=instr_str)
     if verbose:
-        t = PrettyTable(['SECTION', 'DECIMAL', 'BINARY', 'DECODED'])
+        t = PrettyTable(['SECTION', 'DECIMAL', 'BINARY', 'ENCODED'])
         for d in mc.data_segments:
             t.add_row([d.name, d.decimal, d.bin_str, d.human_readable])
         print(t)
