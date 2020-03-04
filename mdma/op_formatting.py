@@ -57,9 +57,10 @@ class OpFormat(NamedTuple):
                 The (pre-defined) OpFormat
 
             """
-        if op_bits in ['000000']:
+        if op_bits == '000000':
             if not func_bits:
-                raise Exception
+                raise Exception(f'Op bits (000000) indicate this is a special R-type operation'
+                                f'but function bits were not provided')
             if func_bits in ["000000", "000100", "000011", "000111", "000010", "000110"]:  # A shifting operation
                 return _s_format
             else:

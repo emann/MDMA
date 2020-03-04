@@ -56,7 +56,7 @@ class DataSegment:
 
     def _twos_comp_from_int(self, val) -> str:
         if val != 0 and self.num_bits < math.ceil(math.log(abs(val), 2)):
-            raise Exception
+            raise Exception(f'Value ({val}) too large to fit in {self.num_bits} bits')
         if val < 0:
             val += (1 << self.num_bits)
             val = bin(val)[2:]
@@ -100,7 +100,7 @@ class DataSegment:
         if self.name in ['op', 'func']:
             bin_str = next((bin_str for bin_str, op_name in codes[self.name].items() if op_name == self.instr_str), None)
             if bin_str is None:
-                raise Exception
+                raise Exception(f'UNKNOWN OPERATION: {self.instr_str}')
             return bin_str
         elif self.instr_str.startswith('$'):
             return bin(Registers.register_num(self.instr_str))[2:].zfill(5)
