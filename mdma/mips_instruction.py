@@ -20,7 +20,7 @@ class MIPSInstruction:
         """
 
     def __init__(self, *, hex_str: str = None, bin_str: str = None, instruction_str: str = None):
-        self.instruction_str: str = instruction_str
+        self.instruction_str: str = instruction_str.replace(',', '') if instruction_str else None
         self.hex_str: str = hex_str
         self.bin_str: str = bin_str
         self.op_format: OpFormat = None
