@@ -17,7 +17,7 @@ class OpFormat(NamedTuple):
         """Parses the 'op' bits and 'func' bits of a 32-bit binary string and uses them to parse the operation format.
 
             Args:
-                binary_string (str): the binary string to be parsed.
+                binary_string: the binary string to be parsed.
             Returns:
                 The (pre-defined) OpFormat
 
@@ -32,7 +32,7 @@ class OpFormat(NamedTuple):
             parse the operation format.
 
             Args:
-                instr_str (str): the human-readable instruction string to be parsed
+                instr_str: the human-readable instruction string to be parsed
             Returns:
                 The (pre-defined) OpFormat
 
@@ -51,8 +51,8 @@ class OpFormat(NamedTuple):
             (and/or the 6 function digits) in a 32-bit binary machine code string.
 
             Args:
-                op_bits (str): the 6 bits defining the instruction's operation
-                func_bits (:obj:`str`, optional): the 6 bits defining the instruction's function, if needed
+                op_bits: the 6 bits defining the instruction's operation
+                func_bits: the 6 bits defining the instruction's function, if needed
             Returns:
                 The (pre-defined) OpFormat
 
@@ -134,7 +134,17 @@ class Registers(Enum):
         return '$' + self.name
 
     @staticmethod
-    def register_num(register_name):
+    def register_num(register_name: str) -> int:
+        """Parses the operation format of a 32-bit binary string based off of the 6 operation digits
+            (and/or the 6 function digits) in a 32-bit binary machine code string.
+
+            Args:
+                register_name: the human-readable name of the register. Both $[register name] and $[register number]
+                are acceptable
+            Returns:
+                The register number corresponding to the register name given
+
+            """
         if register_name.startswith('$'):
             register_name = register_name[1:]
         if register_name.isdigit():  # Register name with number e.g. $4 which is a0
