@@ -62,38 +62,37 @@ class OpFormat(NamedTuple):
                 raise Exception(f'Op bits (000000) indicate this is a special R-type operation'
                                 f'but function bits were not provided')
             if func_bits in ["000000", "000100", "000011", "000111", "000010", "000110"]:  # A shifting operation
-                return _s_format
+                return s_format
             else:
-                return _r_format
+                return r_format
         elif op_bits in ['000010', '000011']:
-            return _j_format
+            return j_format
         else:  # Anything not specified is assumed to be an I format operation
-            return _i_format
+            return i_format
 
 
 # Represents R format operations
-_r_format = OpFormat(format="R", 
-                     fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6}, 
-                     syntax=["func", "rd", "rs", "rt"])
+r_format = OpFormat(format="R",
+                    fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6},
+                    syntax=["func", "rd", "rs", "rt"])
 
 # Represents I format operations
-_i_format = OpFormat(format="I",
-                     fields={'op': 6, 'rs': 5, 'rt': 5, 'immediate': 16},
-                     syntax=["op", "rt", "rs", "immediate"])
+i_format = OpFormat(format="I",
+                    fields={'op': 6, 'rs': 5, 'rt': 5, 'immediate': 16},
+                    syntax=["op", "rt", "rs", "immediate"])
 
 # Represents J format operations
-_j_format = OpFormat(format="J",
-                     fields={'op': 6, 'target': 26},
-                     syntax=["op", "target"])
+j_format = OpFormat(format="J",
+                    fields={'op': 6, 'target': 26},
+                    syntax=["op", "target"])
 
 # Represent shift operations - similar to R format, but syntax is slightly different
-_s_format = OpFormat(format="R",
-                     fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6},
-                     syntax=["func", "rs", "rt", "shamt"])
+s_format = OpFormat(format="R",
+                    fields={'op': 6, 'rs': 5, 'rt': 5, 'rd': 5,'shamt': 5,'func':6},
+                    syntax=["func", "rs", "rt", "shamt"])
 
-path = os.path.dirname(os.path.realpath(__file__))
-path = os.path.join(path, 'func_and_opcodes.json')
-with open(path, 'r') as yf:
+_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'func_and_opcodes.json')
+with open(_path, 'r') as yf:
     codes = json.load(yf)
 
 
