@@ -67,4 +67,4 @@ elif args.mode:
     if args.mode == 'encode':
         encode(args.input_str, args.verbose)
 else:
-    parser.error('encode or decode must be specified if interactive mode (-i) is not specified.')
+    interactive_loop(verbose=args.verbose)
