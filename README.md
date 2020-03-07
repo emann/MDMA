@@ -1,6 +1,6 @@
 # MDMA
 
-### **(M)**achine code **(D)**ecoding/encoding for **(M)**ips **(A)**ssembly language
+### (M)achine code (D)ecoding/encoding for (M)ips (A)ssembly language
 A python package for decoding machine code and encoding human-readable instruction strings for use with the [MIPS Assembly Language](https://en.wikipedia.org/wiki/MIPS_architecture). 
 
 ## Installation
