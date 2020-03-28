@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "mdma"
 version = "0.1.0"
-description = "A package for decoding/encoding MIPS Assembly Language machine code"
+description = "A package for decoding/encoding MIPS Assembly Language machine code and instructions"
 authors = ["Ethan Mann <emannguitar@gmail.com>"]
-
+keywords = ["MIPS", "Assembly Language", "CISC"]
+include = [
+    "LICENSE",
+]
 [tool.poetry.dependencies]
 python = "^3.7"
 PrettyTable = "^0.7.2"
