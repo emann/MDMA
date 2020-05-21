@@ -1,6 +1,7 @@
-.vscode/
-__pycache__/
-venv/
-.idea/
 .pytest_cache/
+__pycache__/
 dist/
+*.egg-info/
+venv/
+.vscode/
+.idea/
