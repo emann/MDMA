@@ -1,9 +1,15 @@
+from typing import Optional
+
 from .mips_instruction import MIPSInstruction
 from prettytable import PrettyTable
 from argparse import ArgumentParser
 
 
-def decode(hex_str, verbose=False):
+def decode(hex_str: str, verbose: bool=False) -> None:
+    """Decodes the hex string and prints the machine code, binary, and decoded instruction string
+
+        :param hex_str: the 32-bit hex machine code to be decoded
+        :param verbose: if True, the value of each data segment is printed in a table as well"""
     print('=======')
     print('Machine Code:', hex_str)
     mc = MIPSInstruction(hex_str=hex_str)
@@ -17,7 +23,11 @@ def decode(hex_str, verbose=False):
     print('=======\n')
 
 
-def encode(instr_str, verbose=False):
+def encode(instr_str: str, verbose: bool=False) -> None:
+    """Encodes the instruction string and prints the instruction string as well as the encoded machine code and binary
+
+        :param hex_str: the human readable instruction string to be encoded
+        :param verbose: if True, the value of each data segment is printed in a table as well"""
     print('=======')
     print('Instruction String:', instr_str)
     mc = MIPSInstruction(instruction_str=instr_str)
@@ -31,7 +41,12 @@ def encode(instr_str, verbose=False):
     print('=======\n')
 
 
-def interactive_loop(operation=None, verbose=False):
+def interactive_loop(operation: Optional[str]=None, verbose: bool=False) -> None:
+    """The loop that drives "interactive mode" - user enters an operation (if one wasn't specified when starting) and an
+         input and the result is printed.
+
+         :param operation: Optional operation to be used by default
+         :param verbose: passes verbose=True to the :meth:'encode' and :meth:'decode' functions"""
     print('Type \"exit\" to exit')
     while True:
         input_str = input('>>>')
