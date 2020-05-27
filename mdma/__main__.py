@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .mips_instruction import MIPSInstruction
-from prettytable import PrettyTable
+from prettytable import PrettyTable  # type: ignore
 from argparse import ArgumentParser
 
 

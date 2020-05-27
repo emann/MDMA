@@ -1,4 +1,5 @@
 import math
+from typing import Optional, Sized
 
 from .op_formatting import codes, Registers
 
@@ -18,22 +19,24 @@ class DataSegment:
     :param human_readable: A human readable representation of the data
     """
 
-    def __init__(self, name: str, bin_str: str = None, instr_str: str = None, num_bits: int = None):
+    def __init__(self, name: str, bin_str: Optional[str] = None, instr_str: Optional[str] = None, num_bits: Optional[int] = None):
         self.name = name
         self.bin_str = bin_str
         self.instr_str = instr_str
-        if instr_str:
+        if self.instr_str:
             if not num_bits:  # Number of bits was not specified
                 raise ValueError("Instruction string given but number of bits was not specified")
-            self.num_bits = num_bits
-        else:  # The binary string was given
-            self.num_bits = len(self.bin_str)
+        elif self.bin_str:  # The binary string was given
+            num_bits = len(self.bin_str)
+        else:
+            raise ValueError("Neither binary string nor instruction string were specified")
+        self.num_bits: int = num_bits
         self._parse()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.num_bits
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.human_readable
 
     def _parse(self):
@@ -45,42 +48,15 @@ class DataSegment:
             self.bin_str = self._parse_bin_str()
             self.decimal = self._parse_decimal()
 
-    def _int_from_twos_comp(self) -> int:
-        """Converts a binary string in two's complement format into its decimal value.
-
-        :returns: The (converted) decimal representation of the input string
-        """
-        bits = len(self.bin_str)
-        bin_str = int(self.bin_str, 2)
-        if (bin_str & (1 << (bits - 1))) != 0:  # if sign bit is set
-            bin_str = bin_str - (1 << bits)  # compute negative value
-        return bin_str
-
-    def _twos_comp_from_int(self, val: int) -> str:
-        """Converts an integer value into a binary string in two's complement format.
-
-        :param val: The integer value to be converted
-        :returns: The binary string in two's complement format representing the input value
-        """
-        if val != 0 and self.num_bits < math.ceil(math.log(abs(val), 2)):
-            raise Exception(f'Value ({val}) too large to fit in {self.num_bits} bits')
-        if val < 0:
-            val += (1 << self.num_bits)
-            val = bin(val)[2:]
-            sign_extend = '1'*(self.num_bits - len(val))
-        else:
-            val = bin(val)[2:]
-            sign_extend = '0'*(self.num_bits - len(val))
-        val = sign_extend + val
-        return val
-
     def _parse_decimal(self) -> int:
         """Parses the data segment's decimal value, determining if it needs to be converted from two's complement form.
 
         :returns: The decimal value of this data segment
         """
+        if self.bin_str is None:
+            raise ValueError("Can't parse decimal value from None-valued binary string")
         if self.name in ['offset', 'immediate']:
-            return self._int_from_twos_comp()
+            return _int_from_twos_comp(self.bin_str)
         else:
             return int(self.bin_str, 2)
 
@@ -94,7 +70,7 @@ class DataSegment:
         elif self.name in ['rs', 'rt', 'rd', 'src1', 'src2']:
             return str(Registers(self.decimal))
         elif self.name == 'target':  # Upper four of program counter are assumed to be 0000
-            return '0x' + hex(int('0000' + self.bin_str + '00', 2))[2:].zfill(8)
+            return '0x' + hex(int(f'0000{self.bin_str}00', 2))[2:].zfill(8)
         else:
             return str(self.decimal)
 
@@ -103,6 +79,8 @@ class DataSegment:
 
         :returns: The encoded binary string representing the instruction string provided.
         """
+        if self.instr_str is None:
+            raise ValueError("Can't parse binary string from None-value instruction string")
         if self.name in ['op', 'func']:
             bin_str = next((bin_str for bin_str, op_name in codes[self.name].items() if op_name == self.instr_str), None)
             if bin_str is None:
@@ -114,4 +92,36 @@ class DataSegment:
             # First four come from PC (usually 0000) and last two are 00
             return bin(int(self.instr_str, 16))[2:].zfill(32)[4:30]
         else:  # Assumed to be an immediate/offset value
-            return self._twos_comp_from_int(int(self.instr_str))
+            return _twos_comp_from_int(int(self.instr_str), self.num_bits)
+
+
+def _int_from_twos_comp(twos_comp_binary_str: str) -> int:
+    """Converts a binary string in two's complement format into its decimal value.
+
+    :param twos_comp_binary_str: the binary string (in two's compliment form) to be converted
+    :returns: The (converted) decimal representation of the input string
+    """
+    bits = len(twos_comp_binary_str)
+    bin_str = int(twos_comp_binary_str, 2)
+    if (bin_str & (1 << (bits - 1))) != 0:  # if sign bit is set
+        bin_str = bin_str - (1 << bits)  # compute negative value
+    return bin_str
+
+
+def _twos_comp_from_int(val: int, num_bits: int) -> str:
+    """Converts an integer value into a binary string in two's complement format.
+
+    :param val: The integer value to be converted
+    :param num_bits: The number of bits available to store the value in
+    :returns: The binary string in two's complement format representing the input value
+    """
+    if val != 0 and num_bits < math.ceil(math.log(abs(val), 2)):
+        raise ValueError(f'Value ({val}) too large to fit in {num_bits} bits')
+    val_is_negative = val < 0
+    sign_bit: str = str(int(val_is_negative))
+    if val_is_negative:
+        val += (1 << num_bits)
+    bin_str = bin(val)[2:]
+    sign_extend = sign_bit*(num_bits - len(bin_str))
+    bin_str = sign_extend + bin_str
+    return bin_str

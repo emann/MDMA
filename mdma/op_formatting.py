@@ -38,7 +38,7 @@ class OpFormat(NamedTuple):
         :returns: The (pre-defined) OpFormat
         """
         if instr_str in codes['op'].values():
-            op_bits = next((bin_str for bin_str, op_name in codes['op'].items() if op_name == instr_str), None)
+            op_bits = next((bin_str for bin_str, op_name in codes['op'].items() if op_name == instr_str))
             func_bits = None
         else:  # This is a special operation with a func code
             op_bits = '000000'

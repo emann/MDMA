@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from mdma.op_formatting import OpFormat
 from mdma.data_segment import DataSegment
@@ -18,20 +18,22 @@ class MIPSInstruction:
     """
 
     def __init__(self, *, hex_str: str = None, bin_str: str = None, instruction_str: str = None):
-        self.instruction_str: str = instruction_str.replace(',', '') if instruction_str else None
-        self.hex_str: str = hex_str
-        self.bin_str: str = bin_str
-        self.op_format: OpFormat = None
+        self.instruction_str = instruction_str.replace(',', '') if instruction_str else None
+        self.hex_str = hex_str
+        self.bin_str = bin_str
+        self.op_format: OpFormat = None  #type: ignore
         self.data_segments: List[DataSegment] = []
         self.ordered_data_segments: List[DataSegment] = []
         self._decode_or_encode()
 
     def __str__(self) -> str:
         """:returns: the human-readable instruction string"""
-        return self.instruction_str
+        return str(self.instruction_str)
 
     def __index__(self) -> int:
         """:returns: the decimal value of the machine code hex string"""
+        if self.hex_str is None:
+            raise ValueError("hex string is None")
         return int(self.hex_str, 16)
 
     def _decode_or_encode(self) -> None:
@@ -41,20 +43,22 @@ class MIPSInstruction:
         elif self.bin_str is not None:  # the binary string has been given
             self.hex_str = hex((int(self.bin_str, 2)))
             self._decode()
-        else:
+        elif self.hex_str:
             self.hex_str = self.hex_str.replace(' ', '')
             if not self.hex_str.startswith('0x'):
                 self.hex_str = '0x' + self.hex_str
             self.bin_str = bin(int(self.hex_str, 16))[2:].zfill(32)
             self._decode()
+        else:
+            raise RuntimeError("No instruction string, binary string, or hex string to decode or encode")
 
     def _decode(self) -> None:
         """Decodes the machine code (in either binary or hex) into the human-readable instruction"""
-        self.op_format = OpFormat.from_32bit_binary_string(self.bin_str)
+        self.op_format = OpFormat.from_32bit_binary_string(self.bin_str)  #type: ignore
         start = 0
         for segment_name, bits in self.op_format.fields.items():
             end = start + bits
-            bin_str = self.bin_str[start:end]
+            bin_str = self.bin_str[start:end]  #type: ignore
             self.data_segments.append(DataSegment(segment_name, bin_str))
             start = end
         critical_segments = [d for d in self.data_segments if d.name in self.op_format.syntax]
@@ -63,7 +67,7 @@ class MIPSInstruction:
 
     def _encode(self) -> None:
         """Encodes the human-readable instruction string into both binary and hex machine code"""
-        instruction_params = self.instruction_str.split()
+        instruction_params = self.instruction_str.split()  #type: ignore
         instruction = instruction_params[0]
         data_segments = {}
         self.op_format = OpFormat.from_instruction_str(instruction)
@@ -72,15 +76,16 @@ class MIPSInstruction:
         for segment_name, instr_str in zip(self.op_format.syntax, instruction_params):
             num_bits = self.op_format.fields[segment_name]
             data_segments[segment_name] = DataSegment(name=segment_name, instr_str=instr_str, num_bits=num_bits)
-        self.ordered_data_segments = data_segments.values()
+        self.ordered_data_segments = list(data_segments.values())
 
         # Constructing the binary string from the OpFormats's fields and the data segment dictionary
-        self.bin_str = ''
+        bin_str = ''
         for segment_name in self.op_format.fields:
             if segment_name in data_segments:
                 segment_bits = data_segments[segment_name].bin_str
             else:  # segments not actually in use should just be zeroes
                 segment_bits = '0'*self.op_format.fields[segment_name]
             self.data_segments.append(DataSegment(name=segment_name, bin_str=segment_bits))
-            self.bin_str += segment_bits
+            bin_str += segment_bits  #type: ignore
+        self.bin_str = bin_str
         self.hex_str = '0x' + hex(int(self.bin_str, 2))[2:].zfill(8)  # Padding to 8 hex digits
