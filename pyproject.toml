@@ -3,7 +3,11 @@ name = "mdma"
 version = "0.1.0"
 description = "A package for decoding/encoding MIPS Assembly Language machine code and instructions"
 authors = ["Ethan Mann <emannguitar@gmail.com>"]
+homepage = "https://https://github.com/emannguitar/MDMA"
+repository = "https://https://github.com/emannguitar/MDMA"
 keywords = ["MIPS", "Assembly Language", "CISC"]
+readme = "README.md"
+license = "MIT"
 include = [
     "LICENSE",
 ]
