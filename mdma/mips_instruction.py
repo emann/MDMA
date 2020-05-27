@@ -7,17 +7,15 @@ from mdma.data_segment import DataSegment
 class MIPSInstruction:
     """An object representation of a MIPS instruction, including its human-readable string as well as encoded hex and binary.
 
-        Only accepts keyword arguments for hex, binary, or instruction string. The other two are automatically en/decoded.
+    Only accepts keyword arguments for hex, binary, or instruction string. The other two are automatically en/decoded.
 
-        Attributes:
-            instruction_str (str): The human-readable instruction string
-            hex_str (str): The hex string representation of the encoded instruction
-            bin_str (str): The encoded 32-bit binary string
-            op_format (OpFormat): A named tuple representing the operation's formatting
-            data_segments (List[DataSegment]): A list of the machine code's data segments, in their order in the binary.
-            ordered_data_segments (List[DataSegment]): A list of the meaningful data segments in the order they are displayed in a human-readable string
-
-        """
+    :param instruction_str: The human-readable instruction string
+    :param hex_str: The hex string representation of the encoded instruction
+    :param bin_str: The encoded 32-bit binary string
+    :param op_format: A named tuple representing the operation's formatting
+    :param data_segments: A list of the machine code's data segments, in their order in the binary.
+    :param ordered_data_segments: A list of the meaningful data segments in the order they are displayed in a human-readable string
+    """
 
     def __init__(self, *, hex_str: str = None, bin_str: str = None, instruction_str: str = None):
         self.instruction_str: str = instruction_str.replace(',', '') if instruction_str else None
@@ -28,13 +26,16 @@ class MIPSInstruction:
         self.ordered_data_segments: List[DataSegment] = []
         self._decode_or_encode()
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """:returns: the human-readable instruction string"""
         return self.instruction_str
 
-    def __index__(self):
+    def __index__(self) -> int:
+        """:returns: the decimal value of the machine code hex string"""
         return int(self.hex_str, 16)
 
-    def _decode_or_encode(self):
+    def _decode_or_encode(self) -> None:
+        """Determines and performs the necessary operation based on the input"""
         if self.instruction_str is not None:  # The instruction string has been given
             self._encode()
         elif self.bin_str is not None:  # the binary string has been given
@@ -48,7 +49,7 @@ class MIPSInstruction:
             self._decode()
 
     def _decode(self) -> None:
-        """Decodes the machine code"""
+        """Decodes the machine code (in either binary or hex) into the human-readable instruction"""
         self.op_format = OpFormat.from_32bit_binary_string(self.bin_str)
         start = 0
         for segment_name, bits in self.op_format.fields.items():
@@ -60,8 +61,8 @@ class MIPSInstruction:
         self.ordered_data_segments = list(sorted(critical_segments, key=lambda d: self.op_format.syntax.index(d.name)))
         self.instruction_str = ' '.join([str(d) for d in self.ordered_data_segments])
 
-    def _encode(self):
-        """Encodes the instruction string"""
+    def _encode(self) -> None:
+        """Encodes the human-readable instruction string into both binary and hex machine code"""
         instruction_params = self.instruction_str.split()
         instruction = instruction_params[0]
         data_segments = {}

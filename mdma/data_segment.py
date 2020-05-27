@@ -6,19 +6,17 @@ from .op_formatting import codes, Registers
 class DataSegment:
     """An object representation of a segment of data in a machine code binary string
 
-        Parses the decimal value and either the binary string or the human-readable string, depending on input. If
-        creating a data segment from a human-readable string, the number of bits contained in the segment MUST be passed
-        in as well. len(DataSegment) returns the number of bits in the data segment, and str(Datasegment) returns the
-        human readable representation whether it is an opcode, register number, or integer immediate.
+    Parses the decimal value and either the binary string or the human-readable string, depending on input. If
+    creating a data segment from a human-readable string, the number of bits contained in the segment MUST be passed
+    in as well. len(DataSegment) returns the number of bits in the data segment, and str(Datasegment) returns the
+    human readable representation whether it is an opcode, register number, or integer immediate.
 
-        Attributes:
-            name (str): The name of the data segment (e.g. "op", "rs")
-            bin_str (str): A string of the data segment's bits.
-            num_bits (int): The number of bits in the data segment
-            decimal (int): The decimal representation of the binary string. Converted from two's complement when needed
-            human_readable (str): A human readable representation of the data
-
-        """
+    :param name: The name of the data segment (e.g. "op", "rs")
+    :param bin_str: A string of the data segment's bits.
+    :param num_bits: The number of bits in the data segment
+    :param decimal: The decimal representation of the binary string. Converted from two's complement when needed
+    :param human_readable: A human readable representation of the data
+    """
 
     def __init__(self, name: str, bin_str: str = None, instr_str: str = None, num_bits: int = None):
         self.name = name
@@ -26,7 +24,7 @@ class DataSegment:
         self.instr_str = instr_str
         if instr_str:
             if not num_bits:  # Number of bits was not specified
-                raise Exception("Instruction string given but number of bits was not specified")
+                raise ValueError("Instruction string given but number of bits was not specified")
             self.num_bits = num_bits
         else:  # The binary string was given
             self.num_bits = len(self.bin_str)
@@ -50,10 +48,8 @@ class DataSegment:
     def _int_from_twos_comp(self) -> int:
         """Converts a binary string in two's complement format into its decimal value.
 
-            Returns:
-                The (converted) decimal representation of the input string
-
-            """
+        :returns: The (converted) decimal representation of the input string
+        """
         bits = len(self.bin_str)
         bin_str = int(self.bin_str, 2)
         if (bin_str & (1 << (bits - 1))) != 0:  # if sign bit is set
@@ -63,13 +59,9 @@ class DataSegment:
     def _twos_comp_from_int(self, val: int) -> str:
         """Converts an integer value into a binary string in two's complement format.
 
-            Args:
-                val: The integer value to be converted
-
-            Returns:
-                The binary string in two's complement format representing the input value
-
-            """
+        :param val: The integer value to be converted
+        :returns: The binary string in two's complement format representing the input value
+        """
         if val != 0 and self.num_bits < math.ceil(math.log(abs(val), 2)):
             raise Exception(f'Value ({val}) too large to fit in {self.num_bits} bits')
         if val < 0:
@@ -85,10 +77,8 @@ class DataSegment:
     def _parse_decimal(self) -> int:
         """Parses the data segment's decimal value, determining if it needs to be converted from two's complement form.
 
-            Returns:
-                The decimal value of this data segment
-
-            """
+        :returns: The decimal value of this data segment
+        """
         if self.name in ['offset', 'immediate']:
             return self._int_from_twos_comp()
         else:
@@ -97,10 +87,8 @@ class DataSegment:
     def _parse_human_readable(self) -> str:
         """Parses the data into its human readable form.
 
-            Returns:
-                The human-readable representation of the data.
-
-            """
+        :returns: The human-readable representation of the data.
+        """
         if self.name in ['op', 'func']:
             return codes[self.name][self.bin_str]
         elif self.name in ['rs', 'rt', 'rd', 'src1', 'src2']:
@@ -113,10 +101,8 @@ class DataSegment:
     def _parse_bin_str(self) -> str:
         """Parses the binary string representation of a human-readable instruction string
 
-            Returns:
-                The encoded binary string representing the instruction string provided.
-
-            """
+        :returns: The encoded binary string representing the instruction string provided.
+        """
         if self.name in ['op', 'func']:
             bin_str = next((bin_str for bin_str, op_name in codes[self.name].items() if op_name == self.instr_str), None)
             if bin_str is None:
